@@ -1,0 +1,20 @@
+flowchart TB
+  J[Operator / Judges] --> UI[React + TypeScript Halo-inspired HUD]
+  UI --> API[FastAPI REST API]
+  API --> ORCH[Federated Round Orchestrator]
+  DS[PneumoniaMNIST NPZ] --> LOADER[Dataset Loader + Validation]
+  LOADER --> PART[IID / non-IID Partitioner]
+  PART --> H[10 Simulated Hospital Clients]
+  ORCH --> H
+  H --> TRAIN[Local NumPy / PyTorch Training]
+  TRAIN --> GATE[Model Update Gateway]
+  GATE --> DET[Multi-metric Detector]
+  DET --> Q[Quarantine + Trust Ledger]
+  DET --> AGG[FedAvg / Median / Trimmed Mean]
+  AGG --> GM[Global Model]
+  GM --> EVAL[Held-out Evaluation]
+  EVAL --> UI
+  Q --> DB[(SQLite MVP / Firestore optional)]
+  API --> DB
+  DET --> GEM[Gemini Evidence Explainer - optional]
+  GEM --> UI

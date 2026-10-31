@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default deny all unknown collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == "arbiyafathima975@gmail.com" ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // User profile collection
+    match /users/{userId} {
+      allow read: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow create, update: if isSignedIn() && (isOwner(userId) || isAdmin()) && isValidId(userId);
+      allow delete: if isAdmin();
+    }
+
+    // Hospital node registry
+    match /hospitals/{hospitalId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(hospitalId);
+    }
+
+    // Experiments records
+    match /experiments/{experimentId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(experimentId);
+      allow update: if isSignedIn() && isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Federated rounds
+    match /federated_rounds/{roundId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(roundId);
+      allow delete: if isAdmin();
+    }
+
+    // Security incidents: Immutable once created
+    match /security_incidents/{incidentId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(incidentId);
+      allow update, delete: if isAdmin();
+    }
+
+    // Audit logs: Append-only for operators, immutable
+    match /audit_logs/{logId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(logId);
+      allow update, delete: if false; // strictly immutable audit trail
+    }
+
+    // Legacy fallback audit events
+    match /audit_events/{eventId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if false;
+    }
+
+    // Trust ledger history
+    match /trust_history/{historyId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(historyId);
+      allow update, delete: if isAdmin();
+    }
+
+    // Model metadata
+    match /model_metadata/{metaId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(metaId);
+    }
+  }
+}

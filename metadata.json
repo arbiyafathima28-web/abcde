@@ -1,0 +1,6 @@
+{
+  "name": "COVENGUARD AI",
+  "description": "Byzantine-robust Federated Learning framework and cybersecurity HUD for distributed healthcare networks.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

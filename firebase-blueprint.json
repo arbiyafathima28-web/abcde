@@ -1,0 +1,282 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Authenticated administrator or operator profile for CovenGuard AI",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Operator email address"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "analyst", "viewer"],
+          "description": "Access control role"
+        },
+        "displayName": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "User display name"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of account initialization"
+        }
+      },
+      "required": ["email", "role"]
+    },
+    "Hospital": {
+      "title": "Hospital",
+      "description": "Simulated hospital node metadata and dynamic status",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number",
+          "description": "Client node identifier (1-10)"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 64,
+          "description": "Hospital facility name"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["HEALTHY", "QUARANTINED", "OFFLINE"],
+          "description": "Current security state"
+        },
+        "trust": {
+          "type": "number",
+          "description": "Dynamic trust score between 0 and 100"
+        },
+        "samples": {
+          "type": "number",
+          "description": "Number of local dataset partitions"
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp"
+        }
+      },
+      "required": ["id", "name", "status", "trust"]
+    },
+    "Experiment": {
+      "title": "Experiment",
+      "description": "Federated round experiment execution parameters and evaluated metrics",
+      "type": "object",
+      "properties": {
+        "round": {
+          "type": "number",
+          "description": "Communication round sequence number"
+        },
+        "attack": {
+          "type": "string",
+          "enum": ["none", "sign_flip", "noise"],
+          "description": "Simulated attack vector"
+        },
+        "aggregation": {
+          "type": "string",
+          "enum": ["fedavg", "median", "trimmed_mean"],
+          "description": "Aggregator consensus algorithm"
+        },
+        "flaggedClients": {
+          "type": "string",
+          "description": "List or comma-separated indices of quarantined nodes"
+        },
+        "testAccuracy": {
+          "type": "number",
+          "description": "Measured test accuracy on held-out split"
+        },
+        "testF1": {
+          "type": "number",
+          "description": "Measured test F1 score"
+        },
+        "executedBy": {
+          "type": "string",
+          "description": "Operator user ID"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Execution timestamp"
+        }
+      },
+      "required": ["round", "attack", "aggregation", "testAccuracy"]
+    },
+    "FederatedRound": {
+      "title": "FederatedRound",
+      "description": "Detailed per-round client updates telemetry",
+      "type": "object",
+      "properties": {
+        "roundNumber": {
+          "type": "number",
+          "description": "Round number"
+        },
+        "participatingNodes": {
+          "type": "number",
+          "description": "Count of contributing hospitals"
+        },
+        "acceptedNodes": {
+          "type": "number",
+          "description": "Count of accepted contributions"
+        },
+        "status": {
+          "type": "string",
+          "description": "Execution status"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO timestamp"
+        }
+      },
+      "required": ["roundNumber", "participatingNodes", "acceptedNodes"]
+    },
+    "SecurityIncident": {
+      "title": "SecurityIncident",
+      "description": "Anomalous gradient or sign-flip attack detection incident report",
+      "type": "object",
+      "properties": {
+        "hospitalId": {
+          "type": "number",
+          "description": "Suspected malicious hospital ID"
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "Reason for quarantine"
+        },
+        "l2Norm": {
+          "type": "number",
+          "description": "Observed L2 update norm"
+        },
+        "meanCosine": {
+          "type": "number",
+          "description": "Observed pairwise cosine similarity"
+        },
+        "robustScore": {
+          "type": "number",
+          "description": "Median Absolute Deviation z-score"
+        },
+        "geminiBriefing": {
+          "type": "string",
+          "description": "AI Security Analyst explanation"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Incident timestamp"
+        }
+      },
+      "required": ["hospitalId", "reason", "timestamp"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable security journal log entry",
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "maxLength": 64,
+          "description": "Event name"
+        },
+        "details": {
+          "type": "string",
+          "description": "JSON serialized event details"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Event timestamp"
+        }
+      },
+      "required": ["event", "details", "timestamp"]
+    },
+    "TrustHistory": {
+      "title": "TrustHistory",
+      "description": "Historic trust ledger delta record",
+      "type": "object",
+      "properties": {
+        "hospitalId": {
+          "type": "number",
+          "description": "Hospital ID"
+        },
+        "oldTrust": {
+          "type": "number",
+          "description": "Previous trust score"
+        },
+        "newTrust": {
+          "type": "number",
+          "description": "Updated trust score"
+        },
+        "round": {
+          "type": "number",
+          "description": "Round number"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp"
+        }
+      },
+      "required": ["hospitalId", "oldTrust", "newTrust", "round"]
+    },
+    "ModelMetadata": {
+      "title": "ModelMetadata",
+      "description": "Global consensus model weight metadata and versioning",
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "maxLength": 32,
+          "description": "Model version string"
+        },
+        "featureDimension": {
+          "type": "number",
+          "description": "Model parameter count"
+        },
+        "datasetName": {
+          "type": "string",
+          "description": "Training dataset identifier"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp"
+        }
+      },
+      "required": ["version", "featureDimension"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Authorized user profiles and roles"
+    },
+    "/hospitals/{hospitalId}": {
+      "schema": { "$ref": "#/entities/Hospital" },
+      "description": "10 simulated hospital nodes and dynamic trust states"
+    },
+    "/experiments/{experimentId}": {
+      "schema": { "$ref": "#/entities/Experiment" },
+      "description": "Federated learning experiment runs and evaluated metrics"
+    },
+    "/federated_rounds/{roundId}": {
+      "schema": { "$ref": "#/entities/FederatedRound" },
+      "description": "Federated communication rounds telemetry"
+    },
+    "/security_incidents/{incidentId}": {
+      "schema": { "$ref": "#/entities/SecurityIncident" },
+      "description": "Byzantine attack and quarantine security incident reports"
+    },
+    "/audit_logs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Tamper-evident audit journal for operational transparency"
+    },
+    "/trust_history/{historyId}": {
+      "schema": { "$ref": "#/entities/TrustHistory" },
+      "description": "Historical node trust score fluctuations"
+    },
+    "/model_metadata/{metaId}": {
+      "schema": { "$ref": "#/entities/ModelMetadata" },
+      "description": "Global aggregated model version metadata"
+    }
+  }
+}
